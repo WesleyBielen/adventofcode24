@@ -1,5 +1,6 @@
 import re
 import os
+import time
 
 def main():
     os.chdir(os.path.dirname(__file__))
@@ -30,4 +31,8 @@ def main():
     print(f"Total: {total}")
 
 if __name__ == "__main__":
+    start_time = time.time()
     main()
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"Program completed in {elapsed_time:.5f} seconds")
