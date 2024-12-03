@@ -1,6 +1,7 @@
-
+import os
 
 def main():
+    os.chdir(os.path.dirname(__file__))
     file_path = "212_input.txt"
 
     with open(file_path, "r") as file:

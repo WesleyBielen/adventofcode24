@@ -1,6 +1,7 @@
-
+import os
 
 def main():
+    os.chdir(os.path.dirname(__file__))
     file_path = "112_input.txt"
 
     list1 = []
