@@ -16,7 +16,7 @@ def main():
 
     curr_pos = determine_curr_pos(matrix)
     print(f'begin pos = {curr_pos}')
-    matrix[curr_pos[0]][curr_pos[1]] = 'N'
+    #matrix[curr_pos[0]][curr_pos[1]] = 'N'
     current_travel = 0
     total_travel = 1
     while True:
@@ -84,67 +84,115 @@ def validate_new_crate(curr_pos, matrix, travel):
     global total_valid_crates
     crate_pos = copy.deepcopy(curr_pos)
     virtual_pos = copy.deepcopy(curr_pos)
+    virtual_travel = copy.deepcopy(travel)
     m2 = copy.deepcopy(matrix)
-    travel_virtual = copy.deepcopy(travel)
-    
+
+    going_up = list()
+    going_right = list()
+    going_down = list()
+    going_left = list()
+
     # Put new crate
-    match travel_virtual % 4:
+    match virtual_travel % 4:
         case 0:
             crate_pos[0]-=1
+            going_up.append((crate_pos[0], crate_pos[1]))
         case 1:
             crate_pos[1] += 1
+            going_right.append((crate_pos[0], crate_pos[1]))
         case 2:
             crate_pos[0] += 1
+            going_down.append((crate_pos[0], crate_pos[1]))
         case 3:
             crate_pos[1] -= 1
+            going_left.append((crate_pos[0], crate_pos[1]))
 
+    #print(going_left)
     m2[crate_pos[0]][crate_pos[1]] = '#'
-    
+
+    print(f'Evaluating crate at {crate_pos[0]}/{crate_pos[1]} - Travel is {virtual_travel}')
+
     while True:
-        travel_virtual+=1
-        crate_found=False
+        virtual_travel+=1
         first_iter=True
-        match travel_virtual % 4:
+        crate_found=False
+        match virtual_travel % 4:
             case 0:
                 # Going up
                 while virtual_pos[0] > 0:
-                    if not first_iter:
-                        crate_found, direction_found = validate_is_traveled(virtual_pos, m2, 'N')
-                        if crate_found or direction_found:
-                            break
-                    first_iter=False
-                    validate_traveled(virtual_pos, m2, 'N')
                     virtual_pos[0] -= 1
+                    if (virtual_pos[0],virtual_pos[1]) in going_up:
+                        print(f'GU Loop found! {virtual_pos} starting from {curr_pos}. Crate at {crate_pos}')
+                        total_valid_crates += 1
+                        break
+                    elif m2[virtual_pos[0]][virtual_pos[1]] == '#':
+                        if first_iter:
+                            break
+                        else:
+                            crate_found = True
+                            going_up.append((virtual_pos[0], virtual_pos[1]))
+
+                            print(f'GU actual crate found at {virtual_pos}')
+                            virtual_pos[0] += 1
+                            break
+                    first_iter = False
+
             case 1:
                 # Going right
                 while virtual_pos[1] < len(m2[0]) - 1:
-                    if not first_iter:
-                        crate_found, direction_found = validate_is_traveled(virtual_pos, m2, 'E')
-                        if crate_found or direction_found:
+                    virtual_pos[1] += 1
+                    if (virtual_pos[0],virtual_pos[1]) in going_right:
+                        print(f'GR Loop found! {virtual_pos} starting from {curr_pos} Crate at {crate_pos}')
+                        total_valid_crates += 1
+                        break
+                    elif m2[virtual_pos[0]][virtual_pos[1]] == '#':
+                        if first_iter:
+                            break
+                        else:
+                            crate_found = True
+                            print(f'GR actual crate found at {virtual_pos}')
+                            going_right.append((virtual_pos[0], virtual_pos[1]))
+                            virtual_pos[1] -= 1
                             break
                     first_iter = False
-                    validate_traveled(virtual_pos, m2, 'E')
-                    virtual_pos[1] += 1
+
             case 2:
                 # Going down
                 while virtual_pos[0] < len(m2) - 1:
-                    if not first_iter:
-                        crate_found, direction_found = validate_is_traveled(virtual_pos, m2, 'S')
-                        if crate_found or direction_found:
+                    virtual_pos[0] += 1
+                    if (virtual_pos[0],virtual_pos[1]) in going_down:
+                        print(f'GD Loop found! {virtual_pos} starting from {curr_pos} Crate at {crate_pos}')
+                        total_valid_crates += 1
+                        break
+                    elif m2[virtual_pos[0]][virtual_pos[1]] == '#':
+                        if first_iter:
+                            break
+                        else:
+                            crate_found = True
+                            going_down.append((virtual_pos[0], virtual_pos[1]))
+                            print(f'GD actual crate found at {virtual_pos}')
+                            virtual_pos[0] -= 1
                             break
                     first_iter = False
-                    validate_traveled(virtual_pos, m2, 'S')
-                    virtual_pos[0] += 1
+
             case 3:
                 # Going left
                 while virtual_pos[1] > 0:
-                    if not first_iter:
-                        crate_found, direction_found = validate_is_traveled(virtual_pos, m2, 'W')
-                        if crate_found or direction_found:
+                    virtual_pos[1] -= 1
+                    if (virtual_pos[0],virtual_pos[1]) in going_left:
+                        print(f'GL Loop found! {virtual_pos} starting from {curr_pos} Crate at {crate_pos}')
+                        total_valid_crates+=1
+                        break
+                    elif m2[virtual_pos[0]][virtual_pos[1]] == '#':
+                        if first_iter:
+                            break
+                        else:
+                            print(f'GL actual crate found at {virtual_pos}')
+                            crate_found = True
+                            going_left.append((virtual_pos[0], virtual_pos[1]))
+                            virtual_pos[1] += 1
                             break
                     first_iter = False
-                    validate_traveled(virtual_pos, m2, 'W')
-                    virtual_pos[1] -= 1
 
         if not crate_found:
             break

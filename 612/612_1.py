@@ -3,9 +3,9 @@ import time
 
 def main():
     os.chdir(os.path.dirname(__file__))
-    file_path = "612_input.txt"
+    file_path = '612_input_sample.txt'
 
-    with open(file_path, "r") as file:
+    with open(file_path, 'r') as file:
         content = file.readlines()
 
     matrix = [list(line.strip()) for line in content]
@@ -20,7 +20,7 @@ def main():
             case 0:
                 # Going up
                 while curr_pos[0] > 0:
-                    if matrix[curr_pos[0]-1][curr_pos[1]] != "#":
+                    if matrix[curr_pos[0]-1][curr_pos[1]] != '#':
                         if matrix[curr_pos[0]-1][curr_pos[1]] == '.':
                             total_travel+=1
                         matrix[curr_pos[0]-1][curr_pos[1]] = '^'
@@ -31,7 +31,7 @@ def main():
             case 1:
                 # Going right
                 while curr_pos[1] < len(matrix[0])-1:
-                    if matrix[curr_pos[0]][curr_pos[1]+1] != "#":
+                    if matrix[curr_pos[0]][curr_pos[1]+1] != '#':
                         if matrix[curr_pos[0]][curr_pos[1]+1] == '.':
                             total_travel+=1
                         matrix[curr_pos[0]][curr_pos[1]+1] = '>'
@@ -42,7 +42,7 @@ def main():
             case 2:
                 # Going down
                 while curr_pos[0] < len(matrix)-1:
-                    if matrix[curr_pos[0]+1][curr_pos[1]] != "#":
+                    if matrix[curr_pos[0]+1][curr_pos[1]] != '#':
                         if matrix[curr_pos[0]+1][curr_pos[1]] == '.':
                             total_travel+=1
                         matrix[curr_pos[0]+1][curr_pos[1]] = 'v'
@@ -53,7 +53,7 @@ def main():
             case 3:
                 # Going left
                 while curr_pos[1] > 0:
-                    if matrix[curr_pos[0]][curr_pos[1]-1] != "#":
+                    if matrix[curr_pos[0]][curr_pos[1]-1] != '#':
                         if matrix[curr_pos[0]][curr_pos[1]-1] == '.':
                             total_travel+=1
                         matrix[curr_pos[0]][curr_pos[1]-1] = '<'
@@ -66,8 +66,8 @@ def main():
             break
         current_travel+=1
 
-    #for line in matrix:
-    #    print(' '.join(line))
+    for line in matrix:
+       print(' '.join(line))
     print(total_travel)
 
 def determine_curr_pos(matrix):
@@ -78,9 +78,9 @@ def determine_curr_pos(matrix):
             if matrix[i][ii] == '^':
                 return [i, ii]
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     start_time = time.time()
     main()
     end_time = time.time()
     elapsed_time = end_time - start_time
-    print(f"Program completed in {elapsed_time:.5f} seconds")
+    print(f'Program completed in {elapsed_time:.5f} seconds')
