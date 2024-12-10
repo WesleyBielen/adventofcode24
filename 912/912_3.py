@@ -16,48 +16,52 @@ def main():
         if alt:
             new_string+=  str('.' * int(content[i]))
         else:
-            new_string += str(str(file_block_num) * int(content[i]))
+            new_string += str(str('-'+str(file_block_num)+'-') * int(content[i]))
             file_block_num+=1
         alt = not alt
-    print(new_string)
-    file_blocks_index = []
+    #print(new_string)
     for i in range(file_block_num, 0, -1):
         num_times_file_block_id_is_printed = int((content[(i*2)-2]))
         #print(f'File block ID {i-1} is printed {num_times_file_block_id_is_printed}')
         new_string = swap(i-1, num_times_file_block_id_is_printed, new_string)
         # Check if we still need to continue (eg. a '.' is still to be found in between digits)
-        if not (re.search(r"(?<=\d)\.(?=\d)", new_string)):
+        if not (re.search(r"(?<=-)\.(?=-)", new_string)):
             break
+
     print(new_string)
+    total_sum = 0
+    pattern = r"-(\d+)-"
+    matches = re.findall(pattern, new_string)
+    numbers = list(map(int, matches))
+    for i in range(len(numbers)):
+        total_sum+= numbers[i] * i
+    print(total_sum)
+
 
 def swap(file_block_id, num_times_file_block_id_is_printed, new_string):
     length_new_string = len(new_string)
-    index_file_block_id = new_string.rfind(str(file_block_id))
     for i in range(num_times_file_block_id_is_printed):
-        if not (re.search(r"(?<=\d)\.(?=\d)", new_string)):
-            break
+        index_file_block_id = new_string.rfind('-'+str(file_block_id)+'-')
+        if not (re.search(r"(?<=-)\.(?=-)", new_string)):
+            continue
         length_file_block_id_digits=len(str(file_block_id))
         pattern = r'\.{'+str(length_file_block_id_digits)+'}'
 
         match = re.search(pattern, new_string)
 
-        if match:
+        if match and match.start() < index_file_block_id:
             dots_start_index = match.start()
             dots_end_index = match.end()
-
-            index_right = new_string.rfind(str(file_block_id))
             
             swapped_string = (
                 new_string[:dots_start_index] +
-                str(file_block_id) +
-                new_string[dots_end_index:index_right]
+                '-'+str(file_block_id)+'-' +
+                new_string[dots_end_index:index_file_block_id] +
+                new_string[index_file_block_id+length_file_block_id_digits+2:]
             ).ljust(length_new_string, '.')
 
-            #print(f"Modified string: {swapped_string}")
             new_string=swapped_string
-        else:
-            print("No occurrence found.")
-            break
+
     return new_string
 
 if __name__ == "__main__":
