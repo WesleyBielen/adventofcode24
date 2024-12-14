@@ -24,10 +24,43 @@ def main():
             if not region_id is None:
                 search_for_region(region_id,matrix[i][ii], matrix, [i,ii])
 
-    print(regions.values())
+    total_price=0
+    for region_list in regions.values():
+        total_perimeter=0
+        for plot in region_list:
+            total_gates = 4
+
+            pl_to_check = plot[:]
+            pl_to_check[0]+=1
+            if is_plot_registered_for_region(pl_to_check, region_list):
+                total_gates-=1
+
+            pl_to_check = plot[:]
+            pl_to_check[0] -= 1
+            if is_plot_registered_for_region(pl_to_check, region_list):
+                total_gates -= 1
+
+            pl_to_check = plot[:]
+            pl_to_check[1] += 1
+            if is_plot_registered_for_region(pl_to_check, region_list):
+                total_gates -= 1
+
+            pl_to_check = plot[:]
+            pl_to_check[1] -= 1
+            if is_plot_registered_for_region(pl_to_check, region_list):
+                total_gates -= 1
+
+            total_perimeter+=total_gates
+
+        total_price += len(region_list) * total_perimeter
+
+    print(f'Total price is {total_price}')
+
+def is_plot_registered_for_region(curr_pos, region_list):
+    return curr_pos in region_list
 
 def is_pos_already_registered(curr_pos):
-    return any(curr_pos in value for value in regions.values())
+    return any(curr_pos in value_list for value_list in regions.values())
 
 def register_new_plot_to_region(region_id, pos):
     if not is_pos_already_registered(pos):
@@ -43,34 +76,30 @@ def register_new_region(plant, curr_pos):
     return None
 
 def search_for_region(region_id,plant, matrix, curr_pos):
-    new_pos = copy.deepcopy(curr_pos)
-
-    row = new_pos[0]
-    col = new_pos[1]
-    if row > 0:
-        row-=1
-        new_pos[0] = row 
+    if curr_pos[0]> 0:
+        new_pos = copy.deepcopy(curr_pos)
+        new_pos[0]-=1
         if matrix[new_pos[0]][new_pos[1]] == plant:
             if register_new_plot_to_region(region_id, new_pos):
                 search_for_region(region_id, plant, matrix, new_pos)
     
-    if row < len(matrix)-1:
-        row+=1
-        new_pos[0] = row 
+    if curr_pos[0] < len(matrix)-1:
+        new_pos = copy.deepcopy(curr_pos)
+        new_pos[0]+=1
         if matrix[new_pos[0]][new_pos[1]] == plant:
             if register_new_plot_to_region(region_id, new_pos):
                 search_for_region(region_id, plant, matrix, new_pos)
     
-    if col > 0:
-        col-=1
-        new_pos[1] = col
+    if curr_pos[1] > 0:
+        new_pos = copy.deepcopy(curr_pos)
+        new_pos[1]-=1
         if matrix[new_pos[0]][new_pos[1]] == plant:
             if register_new_plot_to_region(region_id, new_pos):
                 search_for_region(region_id, plant, matrix, new_pos)
     
-    if col < len(matrix[0])-1:
-        col+=1
-        new_pos[1] = col
+    if curr_pos[1] < len(matrix[0])-1:
+        new_pos = copy.deepcopy(curr_pos)
+        new_pos[1]+=1
         if matrix[new_pos[0]][new_pos[1]] == plant:
             if register_new_plot_to_region(region_id, new_pos):
                 search_for_region(region_id, plant, matrix, new_pos)
