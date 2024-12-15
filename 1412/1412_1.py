@@ -36,7 +36,6 @@ def main():
         else:
             new_place_after_row = (p_values[1] + (100 * v_values[1])) % rows
 
-        # print(str(new_place_after_row) + " / " + str(new_place_after_col))
         if new_place_after_row == row_to_ignore or new_place_after_col == col_to_ignore:
             continue
 
