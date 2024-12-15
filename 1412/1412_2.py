@@ -7,52 +7,47 @@ def main():
     os.chdir(os.path.dirname(__file__))
     file_path = "1412_input.txt"
 
+    rows=103
+    cols=101
+    row_to_ignore = rows // 2
+    col_to_ignore = cols // 2
     with open(file_path, "r") as file:
-        content = file.readlines()
+        content = file.read()
 
-    matrix = [line.strip() for line in content]
+    pattern = r"p=([-]?\d+),\s*([-]?\d+)\s+v=([-]?\d+),\s*([-]?\d+)"
 
-    button_a = None
-    button_b = None
-    price = None
-    total_price=0
-    for i in range(len(matrix)):
-        line = matrix[i]
-        modus = i % 4
-        if modus == 0:
-            button_a = []
-            pattern = r"X\+(\d+)"
-            match = re.search(pattern, line)
-            button_a.append(match.group(1))
-            pattern = r"Y\+(\d+)"
-            match = re.search(pattern, line)
-            button_a.append(match.group(1))
-        elif modus ==1:
-            button_b = []
-            pattern = r"X\+(\d+)"
-            match = re.search(pattern, line)
-            button_b.append(match.group(1))
-            pattern = r"Y\+(\d+)"
-            match = re.search(pattern, line)
-            button_b.append(match.group(1))
-        elif modus == 2:
-            price = []
-            pattern = r"X\=(\d+)"
-            match = re.search(pattern, line)
-            price.append("1"+match.group(1).zfill(13))
-            pattern = r"Y\=(\d+)"
-            match = re.search(pattern, line)
-            price.append("1"+match.group(1).zfill(13))
+    matches = re.findall(pattern, content)
+    results = [(tuple(map(int, match[:2])), tuple(map(int, match[2:]))) for match in matches]
 
-            x, y = symbols('x y', integer=True)
+    i=0
+    while True:
+        new_pos=[]
+        i+=1
+        for p_values, v_values in results:
+            new_place_after_col=None
+            new_place_after_row=None
+            if v_values[0] < 0:
+                new_place_after_col = (p_values[0] + (i * (cols + v_values[0]))) % cols
+            else:
+                new_place_after_col = (p_values[0] + (i * v_values[0])) % cols
 
-            eq1 = Eq(int(button_a[0]) * x + int(button_b[0]) * y, int(price[0]))
-            eq2 = Eq(int(button_a[1]) * x + int(button_b[1]) * y, int(price[1]))
+            if v_values[1] < 0:
+                new_place_after_row = (p_values[1] + (i * (rows + v_values[1]))) % rows
+            else:
+                new_place_after_row = (p_values[1] + (i * v_values[1])) % rows
 
-            solution = solve((eq1, eq2), (x, y))
-            if solution:
-                total_price += solution[x] * 3 + solution[y]
-    print(f"Total tokens = {total_price}")
+            new_pos.append([new_place_after_row, new_place_after_col])
+
+        set_of_tuples = {tuple(lst) for lst in new_pos}
+        if len(set_of_tuples) == len(new_pos):
+            print(f'Found pattern after {i} seconds.')
+            xmas_tree= [[' ' for _ in range(cols)] for _ in range(rows)]
+            for pos in new_pos:
+                xmas_tree[pos[0]][pos[1]]='X'
+
+            for i in range(len(xmas_tree)):
+                print(' '.join(xmas_tree[i]))
+            return
 
 if __name__ == "__main__":
     start_time = time.time()
