@@ -9,8 +9,7 @@ def main():
 
     rows=103
     cols=101
-    row_to_ignore = rows // 2
-    col_to_ignore = cols // 2
+
     with open(file_path, "r") as file:
         content = file.read()
 
