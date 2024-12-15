@@ -56,17 +56,6 @@ def main():
     safety_factor = sq_ne * sq_nw * sq_se * sq_sw
     print(safety_factor)
 
-    #
-    # for i in range(len(matrix)):
-    #     line = matrix[i]
-    #     pattern = r"p=([-]?\d+,\s*[-]?\d+)\s+v=([-]?\d+,\s*[-]?\d+)"
-    #     matches = re.findall(pattern, line)
-    #
-    #     # Print captured pairs
-    #     for p_values, v_values in matches:
-    #         print(f"p: {p_values}, v: {v_values}")
-
-
 if __name__ == "__main__":
     start_time = time.time()
     main()
