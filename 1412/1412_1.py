@@ -1,7 +1,6 @@
 import os
 import time
 import re
-from sympy import symbols, Eq, solve
 
 def main():
     os.chdir(os.path.dirname(__file__))

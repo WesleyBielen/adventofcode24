@@ -1,7 +1,6 @@
 import os
 import time
 import re
-from sympy import symbols, Eq, solve
 
 def main():
     os.chdir(os.path.dirname(__file__))
@@ -40,12 +39,12 @@ def main():
         set_of_tuples = {tuple(lst) for lst in new_pos}
         if len(set_of_tuples) == len(new_pos):
             print(f'Found pattern after {i} seconds.')
-            xmas_tree= [[' ' for _ in range(cols)] for _ in range(rows)]
+            """ xmas_tree= [[' ' for _ in range(cols)] for _ in range(rows)]
             for pos in new_pos:
                 xmas_tree[pos[0]][pos[1]]='X'
 
             for i in range(len(xmas_tree)):
-                print(' '.join(xmas_tree[i]))
+                print(' '.join(xmas_tree[i])) """
             return
 
 if __name__ == "__main__":
