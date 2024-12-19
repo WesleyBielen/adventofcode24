@@ -1,97 +1,67 @@
 import os
 import time
-import re
-
-register_a=int()
-register_b=int()
-register_c=int()
-program=list()
+import sys
+lowest_score_per_plot=list()
+rows=0
+cols=0
+endpos_found=False
+sys.setrecursionlimit(100000) 
 def main():
-    global register_a, register_b, register_c, program
+    global rows, cols, lowest_score_per_plot, endpos_found
     os.chdir(os.path.dirname(__file__))
     file_path = "1812_input.txt"
 
     with open(file_path, "r") as file:
         content = file.read()
+    lines = content.strip().split('\n')
 
-    pattern = r"A:\s*(\d+)"
-    match = re.search(pattern, content)
-    register_a = int(match.group(1))
+    rows = 71
+    cols = 71
 
-    pattern = r"B:\s*(\d+)"
-    match = re.search(pattern, content)
-    register_b = int(match.group(1))
+    matrix = [['.' for _ in range(cols)] for _ in range(rows)]
+    
 
-    pattern = r"C:\s*(\d+)"
-    match = re.search(pattern, content)
-    register_c = int(match.group(1))
-
-
-    pattern = r"Program:\s*(.*)"
-    match = re.search(pattern, content)
-    program = list(map(int, match.group(1).split(",")))
-
-    print(register_a)
-    print(register_b)
-    print(register_c)
-    print(program)
-
-    iteration=0
-    while True:
-        iteration+=1
-        register_a=iteration
-        pointer = 0
-        output = list()
-        print(f'Evaluating iteration {register_a}')
-        while True:
-            jumped = False
-            opcode=int(program[pointer])
-            operand=int(program[pointer+1])
-
-            match opcode:
-                case 0:
-                    register_a = int(int(register_a) / (2 ** get_combo_operand(operand)))
-                case 1:
-                    register_b = int(register_b ^ operand)
-                case 2:
-                    register_b = int(get_combo_operand(operand)) % 8
-                case 3:
-                    if not register_a == 0:
-                        pointer=operand
-                        jumped=True
-                case 4:
-                    register_b = int(int(register_b) ^ int(register_c))
-                case 5:
-                    output.append(get_combo_operand(operand)%8)
-                case 6:
-                    register_b = int(int(register_a) / (2 ** get_combo_operand(operand)))
-                case 7:
-                    register_c = int(int(register_a) / (2 ** get_combo_operand(operand)))
-            if not jumped:
-                pointer+=2
-
-            if pointer >= len(program):
-                break
-
-        if program == output:
-            print(f"Yeah! We found a copy after {iteration} iterations.")
+    for i in range(len(lines)):
+        x_str, y_str = lines[i].strip().split(',')
+        x, y = int(x_str), int(y_str)
+        matrix[y][x]='#'
+        endpos_found=False
+        startpos=(0,0)
+        lowest_score_per_plot = [[-1 for _ in range(cols)] for _ in range(rows)]
+        print(f'Evaluating byte {i}')
+        eval(startpos, matrix, 0)
+        if not endpos_found:
+            print(f"No Endpos finally found after {i} iterations. Byte = {x,y}")
             break
 
+def eval(startpos, matrix, score):
+    global lowest_score_per_plot, endpos_found
+    
+    if startpos[0] == rows -1 and startpos[1] == cols - 1:
+        endpos_found=True
+        return
+    
+    score+=1
 
-def get_combo_operand(operand):
-    global register_a, register_b, register_c
-    match operand:
-        case 1 | 2 | 3:
-            return operand
-        case 4:
-            return register_a
-        case 5:
-            return register_b
-        case 6:
-            return register_c
-        case 7:
-            print("ERROR. Number 7 should not occur in a valid program as a combo operand.")
-            exit(1)
+    if not lowest_score_per_plot[startpos[0]][startpos[1]] == -1 and score >= lowest_score_per_plot[startpos[0]][startpos[1]]:
+        return
+    else:
+        lowest_score_per_plot[startpos[0]][startpos[1]] = score
+
+    if startpos[0] +1 < rows and matrix[startpos[0] +1][startpos[1]] != '#':
+        eval((startpos[0] +1, startpos[1]), matrix, score)
+    if endpos_found:
+        return
+    if startpos[0] - 1 >= 0 and matrix[startpos[0] - 1][startpos[1]] != '#':
+        eval((startpos[0] - 1, startpos[1]), matrix, score)
+    if endpos_found:
+        return
+    if startpos[1] + 1 < cols  and matrix[startpos[0]][startpos[1]+1] != '#':
+        eval((startpos[0], startpos[1]+1), matrix, score)
+    if endpos_found:
+        return
+    if startpos[1] - 1 >= 0 and matrix[startpos[0]][startpos[1]-1] != '#':
+        eval((startpos[0], startpos[1]-1), matrix, score)
 
 if __name__ == "__main__":
     start_time = time.time()
