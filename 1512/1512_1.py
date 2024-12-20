@@ -4,55 +4,139 @@ import re
 
 def main():
     os.chdir(os.path.dirname(__file__))
-    file_path = "1512_input_sample.txt"
+    file_path = "1512_input_matrix.txt"
 
-    rows=103
-    cols=101
-    row_to_ignore = rows // 2
-    col_to_ignore = cols // 2
+    with open(file_path, "r") as file:
+        content = file.readlines()
+
+    matrix = [list(line.strip()) for line in content]
+
+    #print(matrix)
+
+    file_path = "1512_input_moves.txt"
     with open(file_path, "r") as file:
         content = file.read()
 
-    pattern = r"p=([-]?\d+),\s*([-]?\d+)\s+v=([-]?\d+),\s*([-]?\d+)"
+    moves = list(content)
 
-    matches = re.findall(pattern, content)
-    results = [(tuple(map(int, match[:2])), tuple(map(int, match[2:]))) for match in matches]
+    pos=[]
+    for i in range(len(matrix)):
+        for ii in range(len(matrix[i])):
+            if matrix[i][ii]=='@':
+                pos=[i,ii]
+                break
 
-    sq_ne=0
-    sq_nw=0
-    sq_se=0
-    sq_sw=0
-    for p_values, v_values in results:
-        new_place_after_col=None
-        new_place_after_row=None
-        if v_values[0] < 0:
-            new_place_after_col = (p_values[0] + (100 * (cols + v_values[0]))) % cols
-        else:
-            new_place_after_col = (p_values[0] + (100 * v_values[0])) % cols
+    for i in range(len(moves)):
+        move = moves[i]
+        match move:
+            case '<':
+                if pos[1] > 1 and not matrix[pos[0]][pos[1]-1] == '#':
+                    if matrix[pos[0]][pos[1]-1] == 'O':
+                        free_pos = get_next_free_spot(pos, matrix, '<')
+                        if free_pos:
+                            matrix[pos[0]][pos[1]] = '.'
+                            pos[1] -= 1
+                            matrix[free_pos[0]][free_pos[1]]='O'
+                            matrix[pos[0]][pos[1]]='@'
+                    else:
+                        matrix[pos[0]][pos[1]] = '.'
+                        pos[1]-=1
+                        matrix[pos[0]][pos[1]] = '@'
+                else:
+                    continue
+            case '>':
+                if pos[1] < (len(matrix[0]) -2) and not matrix[pos[0]][pos[1] + 1] == '#':
+                    if matrix[pos[0]][pos[1] + 1] == 'O':
+                        free_pos = get_next_free_spot(pos, matrix, '>')
+                        if free_pos:
+                            matrix[pos[0]][pos[1]] = '.'
+                            pos[1] += 1
+                            matrix[free_pos[0]][free_pos[1]] = 'O'
+                            matrix[pos[0]][pos[1]] = '@'
+                    else:
+                        matrix[pos[0]][pos[1]] = '.'
+                        pos[1] += 1
+                        matrix[pos[0]][pos[1]] = '@'
+                else:
+                    continue
+            case 'v':
+                if pos[0] < (len(matrix)-2) and not matrix[pos[0]+1][pos[1]] == '#':
+                    if matrix[pos[0]+1][pos[1]] == 'O':
+                        free_pos = get_next_free_spot(pos, matrix, 'v')
+                        if free_pos:
+                            matrix[pos[0]][pos[1]] = '.'
+                            pos[0] += 1
+                            matrix[free_pos[0]][free_pos[1]] = 'O'
+                            matrix[pos[0]][pos[1]] = '@'
+                    else:
+                        matrix[pos[0]][pos[1]] = '.'
+                        pos[0] += 1
+                        matrix[pos[0]][pos[1]] = '@'
+                else:
+                    continue
+            case '^':
+                if pos[0] > 1 and not matrix[pos[0]-1][pos[1] ] == '#':
+                    if matrix[pos[0]-1][pos[1]] == 'O':
+                        free_pos = get_next_free_spot(pos, matrix, '^')
+                        if free_pos:
+                            matrix[pos[0]][pos[1]] = '.'
+                            pos[0] -= 1
+                            matrix[free_pos[0]][free_pos[1]] = 'O'
+                            matrix[pos[0]][pos[1]] = '@'
+                    else:
+                        matrix[pos[0]][pos[1]] = '.'
+                        pos[0] -= 1
+                        matrix[pos[0]][pos[1]] = '@'
+                else:
+                    continue
+        # print(f'Case after move {move}')
+        # for line in matrix:
+        #     for char in line:
+        #         print(char, end=' ')  # No space
+        #     print()
 
-        if v_values[1] < 0:
-            new_place_after_row = (p_values[1] + (100 * (rows + v_values[1]))) % rows
-        else:
-            new_place_after_row = (p_values[1] + (100 * v_values[1])) % rows
+    total_score=0
+    for i in range(len(matrix)):
+        for ii in range(len(matrix[0])):
+            if matrix[i][ii] == 'O':
+                total_score+= (i*100)+ii
+    print(total_score)
 
-        if new_place_after_row == row_to_ignore or new_place_after_col == col_to_ignore:
-            continue
-
-        if new_place_after_row < row_to_ignore:
-            #North
-            if new_place_after_col < col_to_ignore:
-                sq_nw +=1
-            else:
-                sq_ne +=1
-        else:
-            #South
-            if new_place_after_col < col_to_ignore:
-                sq_sw +=1
-            else:
-                sq_se +=1
-
-    safety_factor = sq_ne * sq_nw * sq_se * sq_sw
-    print(safety_factor)
+def get_next_free_spot(pos, matrix, direction) -> list:
+    free_pos=pos[:]
+    match direction:
+        case '<':
+            while True:
+                free_pos[1]-=1
+                if free_pos[1] > 0 and not matrix[free_pos[0]][free_pos[1]] == '#':
+                    if not matrix[free_pos[0]][free_pos[1]] == 'O':
+                        return free_pos
+                else:
+                    return []
+        case '>':
+            while True:
+                free_pos[1] += 1
+                if free_pos[1] < (len(matrix)-1) and not matrix[free_pos[0]][free_pos[1]] == '#':
+                    if not matrix[free_pos[0]][free_pos[1]] == 'O':
+                        return free_pos
+                else:
+                    return []
+        case 'v':
+            while True:
+                free_pos[0] += 1
+                if free_pos[0] < (len(matrix[0])-1) and not matrix[free_pos[0]][free_pos[1]] == '#':
+                    if not matrix[free_pos[0]][free_pos[1]] == 'O':
+                        return free_pos
+                else:
+                    return []
+        case '^':
+            while True:
+                free_pos[0] -= 1
+                if free_pos[0] > 0 and not matrix[free_pos[0]][free_pos[1]] == '#':
+                    if not matrix[free_pos[0]][free_pos[1]] == 'O':
+                        return free_pos
+                else:
+                    return []
 
 if __name__ == "__main__":
     start_time = time.time()
