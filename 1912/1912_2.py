@@ -1,67 +1,42 @@
 import os
 import time
-import sys
-lowest_score_per_plot=list()
-rows=0
-cols=0
-endpos_found=False
-sys.setrecursionlimit(100000) 
+patterns=list()
+calc_patterns=dict()
 def main():
-    global rows, cols, lowest_score_per_plot, endpos_found
+    global patterns
     os.chdir(os.path.dirname(__file__))
     file_path = "1912_input_patterns.txt"
-
     with open(file_path, "r") as file:
         content = file.read()
-    lines = content.strip().split('\n')
 
-    rows = 71
-    cols = 71
+    patterns = list(x.strip() for x in content.split(','))
 
-    matrix = [['.' for _ in range(cols)] for _ in range(rows)]
-    
+    file_path = "1912_input_designs.txt"
 
-    for i in range(len(lines)):
-        x_str, y_str = lines[i].strip().split(',')
-        x, y = int(x_str), int(y_str)
-        matrix[y][x]='#'
-        endpos_found=False
-        startpos=(0,0)
-        lowest_score_per_plot = [[-1 for _ in range(cols)] for _ in range(rows)]
-        print(f'Evaluating byte {i}')
-        eval(startpos, matrix, 0)
-        if not endpos_found:
-            print(f"No Endpos finally found after {i} iterations. Byte = {x,y}")
-            break
+    with open(file_path, "r") as file:
+        content = file.readlines()
 
-def eval(startpos, matrix, score):
-    global lowest_score_per_plot, endpos_found
-    
-    if startpos[0] == rows -1 and startpos[1] == cols - 1:
-        endpos_found=True
-        return
-    
-    score+=1
+    designs = [(line.strip()) for line in content]
 
-    if not lowest_score_per_plot[startpos[0]][startpos[1]] == -1 and score >= lowest_score_per_plot[startpos[0]][startpos[1]]:
-        return
+    total_found=0
+    for design in designs:
+        total_found+= shorten(design)
+
+    print(total_found)
+
+def shorten(s):
+    global patterns, calc_patterns
+    if not s in calc_patterns:
+        if len(s)==0:
+            return 1
+        result = 0
+        for pattern in patterns:
+            if s.startswith(pattern):
+                result+=shorten(s[len(pattern):])
+        calc_patterns[s] = result
+        return result
     else:
-        lowest_score_per_plot[startpos[0]][startpos[1]] = score
-
-    if startpos[0] +1 < rows and matrix[startpos[0] +1][startpos[1]] != '#':
-        eval((startpos[0] +1, startpos[1]), matrix, score)
-    if endpos_found:
-        return
-    if startpos[0] - 1 >= 0 and matrix[startpos[0] - 1][startpos[1]] != '#':
-        eval((startpos[0] - 1, startpos[1]), matrix, score)
-    if endpos_found:
-        return
-    if startpos[1] + 1 < cols  and matrix[startpos[0]][startpos[1]+1] != '#':
-        eval((startpos[0], startpos[1]+1), matrix, score)
-    if endpos_found:
-        return
-    if startpos[1] - 1 >= 0 and matrix[startpos[0]][startpos[1]-1] != '#':
-        eval((startpos[0], startpos[1]-1), matrix, score)
+        return calc_patterns[s]
 
 if __name__ == "__main__":
     start_time = time.time()

@@ -20,8 +20,9 @@ def main():
 
     total_found=0
     for design in designs:
-        total_found+= shorten(design)
-
+        if shorten(design) > 0:
+            print(f'Found design {design}')
+            total_found+=1
     print(total_found)
 
 def shorten(s):
