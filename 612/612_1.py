@@ -3,7 +3,7 @@ import time
 
 def main():
     os.chdir(os.path.dirname(__file__))
-    file_path = '612_input_sample.txt'
+    file_path = '612_input.txt'
 
     with open(file_path, 'r') as file:
         content = file.readlines()
@@ -11,9 +11,9 @@ def main():
     matrix = [list(line.strip()) for line in content]
     
     curr_pos = determine_curr_pos(matrix)
-    matrix[curr_pos[0]][curr_pos[1]] = 'S'
     current_travel = 0
-    total_travel=1
+    traveled=set()
+    traveled.add((curr_pos[0], curr_pos[1]))
     while True:
         obstacle_found = False
         match current_travel % 4:
@@ -21,8 +21,7 @@ def main():
                 # Going up
                 while curr_pos[0] > 0:
                     if matrix[curr_pos[0]-1][curr_pos[1]] != '#':
-                        if matrix[curr_pos[0]-1][curr_pos[1]] == '.':
-                            total_travel+=1
+                        traveled.add((curr_pos[0], curr_pos[1]))
                         matrix[curr_pos[0]-1][curr_pos[1]] = '^'
                         curr_pos[0]-=1
                     else:
@@ -32,8 +31,7 @@ def main():
                 # Going right
                 while curr_pos[1] < len(matrix[0])-1:
                     if matrix[curr_pos[0]][curr_pos[1]+1] != '#':
-                        if matrix[curr_pos[0]][curr_pos[1]+1] == '.':
-                            total_travel+=1
+                        traveled.add((curr_pos[0], curr_pos[1]))
                         matrix[curr_pos[0]][curr_pos[1]+1] = '>'
                         curr_pos[1]+=1
                     else:
@@ -43,8 +41,7 @@ def main():
                 # Going down
                 while curr_pos[0] < len(matrix)-1:
                     if matrix[curr_pos[0]+1][curr_pos[1]] != '#':
-                        if matrix[curr_pos[0]+1][curr_pos[1]] == '.':
-                            total_travel+=1
+                        traveled.add((curr_pos[0], curr_pos[1]))
                         matrix[curr_pos[0]+1][curr_pos[1]] = 'v'
                         curr_pos[0]+=1
                     else:
@@ -54,8 +51,7 @@ def main():
                 # Going left
                 while curr_pos[1] > 0:
                     if matrix[curr_pos[0]][curr_pos[1]-1] != '#':
-                        if matrix[curr_pos[0]][curr_pos[1]-1] == '.':
-                            total_travel+=1
+                        traveled.add((curr_pos[0], curr_pos[1]))
                         matrix[curr_pos[0]][curr_pos[1]-1] = '<'
                         curr_pos[1]-=1
                     else:
@@ -68,7 +64,7 @@ def main():
 
     for line in matrix:
        print(' '.join(line))
-    print(total_travel)
+    print(len(traveled)+1)
 
 def determine_curr_pos(matrix):
     num_rows = len(matrix)             
