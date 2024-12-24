@@ -1,11 +1,7 @@
 import os
 import time
 
-rows=cols=0
-sx = sy = 0
-ex = ey = 0
 def main():
-    global rows, cols, sx, sy, ex, ey
     os.chdir(os.path.dirname(__file__))
     file_path = "2012_input_sample.txt"
 
@@ -14,24 +10,47 @@ def main():
 
     matrix = [list(line.strip()) for line in content]
 
-    rows = len(matrix)
-    cols = len(matrix[0])
+    sx, sy = get_pos(matrix, 'S')
+    ex, ey = get_pos(matrix, 'E')
 
-    for i in range(len(matrix)):
-        for ii in range(len(matrix[i])):
-            if matrix[i][ii] == 'S':
-                sx, sy = i, ii
-            elif matrix[i][ii] == 'E':
-                ex, ey = i, ii
-
-    print(f'Startpos = {sx} / {sy}')
-    print(f'Endpos = {ex} / {ey}')
-
-    directions = ((1,0),(0,1),(-1,0),(0,-1))
+    directions = ((-1,0),(0,1),(1,0),(0,-1))
     direction=0
 
+    traveled = dict()
+    traveled[(sx, sy)] = len(traveled)+1
     while True:
-        sx, sy += directions[0][0], directions[0][1]
+        if (sx, sy) == (ex, ey):
+            print(f"End destination found after {len(traveled)} steps ")
+            break
+        curr_dir = directions[direction % 4]
+        fx, fy = sx + curr_dir[0], sy + curr_dir[1]
+        if matrix[fx][fy] == '#' or (fx, fy) in traveled:
+            direction+=1
+        else:
+            sx, sy = fx, fy
+            traveled[(sx, sy)] = len(traveled)+1
+
+    sx, sy = get_pos(matrix, 'S')
+
+    directions = ((-2,0),(0,2),(2,0),(0,-2))
+
+    cheats = dict()
+    for step in traveled:
+        for direction in directions:
+            fx, fy = step[0]+ direction[0], step[1] + direction[1]
+            if (fx, fy) in traveled and (step[0], step[1], fx, fy) not in cheats:
+                diff = traveled[(fx, fy)] - traveled[(step[0], step[1])] - 2
+                if diff > 0:
+                    cheats[(step[0], step[1], fx, fy)]=diff
+
+    print(len(cheats))
+
+def get_pos(matrix, char):
+    for i in range(len(matrix)):
+        for ii in range(len(matrix[i])):
+            if matrix[i][ii] == char:
+                return i, ii
+
 if __name__ == "__main__":
     start_time = time.time()
     main()
