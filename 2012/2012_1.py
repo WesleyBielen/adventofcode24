@@ -3,7 +3,7 @@ import time
 
 def main():
     os.chdir(os.path.dirname(__file__))
-    file_path = "2012_input_sample.txt"
+    file_path = "2012_input.txt"
 
     with open(file_path, "r") as file:
         content = file.readlines()
@@ -40,7 +40,7 @@ def main():
             fx, fy = step[0]+ direction[0], step[1] + direction[1]
             if (fx, fy) in traveled and (step[0], step[1], fx, fy) not in cheats:
                 diff = traveled[(fx, fy)] - traveled[(step[0], step[1])] - 2
-                if diff > 0:
+                if diff >= 100:
                     cheats[(step[0], step[1], fx, fy)]=diff
 
     print(len(cheats))

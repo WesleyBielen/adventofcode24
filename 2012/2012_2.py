@@ -1,14 +1,9 @@
 import os
 import time
 
-cheats=dict()
-traveled=dict()
-evaluated=set()
-directions = ((-1,0),(0,1),(1,0),(0,-1))
 def main():
-    global traveled, cheats, evaluated
     os.chdir(os.path.dirname(__file__))
-    file_path = "2012_input_sample.txt"
+    file_path = "2012_input.txt"
 
     with open(file_path, "r") as file:
         content = file.readlines()
@@ -18,7 +13,9 @@ def main():
     sx, sy = get_pos(matrix, 'S')
     ex, ey = get_pos(matrix, 'E')
 
+    traveled = dict()
     direction=0
+    directions = ((-1, 0), (0, 1), (1, 0), (0, -1))
     traveled[(sx, sy)] = len(traveled)+1
     while True:
         if (sx, sy) == (ex, ey):
@@ -32,60 +29,16 @@ def main():
             sx, sy = fx, fy
             traveled[(sx, sy)] = len(traveled)+1
 
-    sx, sy = get_pos(matrix, 'S')
-
-
+    total_cheats=0
     for step in traveled:
-        evaluated=set()
-        print(f'Searching step {step}')
-        search(matrix, 0, step, step)
+        for ostep in traveled:
+            steps = abs(step[0] - ostep[0]) + abs(step[1] - ostep[1])
+            if steps <= 20:
+                diff = traveled[ostep] - traveled[step] - steps
+                if diff >= 100:
+                    total_cheats+=1
 
-    print(len(cheats))
-
-def search(matrix, i, plot, newplot):
-    global traveled, cheats, evaluated
-    i+=1
-    if i > 20:
-        return
-
-    fx, fy = newplot[0]+ directions[0][0], newplot[1] + directions[0][1]
-
-    if (fx, fy) in traveled and (plot[0], plot[1], fx, fy) not in cheats:
-        diff = traveled[(fx, fy)] - traveled[plot] - i
-        if diff >= 50:
-            cheats[(plot[0], plot[1], fx, fy)]=diff
-            return
-        
-    elif fx > 0 and matrix[fx][fy]=="#":
-        search(matrix, i, plot, (fx, fy))
-
-    fx, fy = newplot[0]+ directions[1][0], newplot[1] + directions[1][1]
-    if (fx, fy) in traveled and (plot[0], plot[1], fx, fy) not in cheats:
-        diff = traveled[(fx, fy)] - traveled[plot] - i
-        if diff >= 50:
-            cheats[(plot[0], plot[1], fx, fy)]=diff
-            return
-        
-    elif fy < len(matrix[0]) and matrix[fx][fy]=="#":
-        search(matrix, i, plot, (fx, fy))
-
-    fx, fy = newplot[0]+ directions[2][0], newplot[1] + directions[2][1]
-    if (fx, fy) in traveled and (plot[0], plot[1], fx, fy) not in cheats:
-        diff = traveled[(fx, fy)] - traveled[plot] - i
-        if diff >= 50:
-            cheats[(plot[0], plot[1], fx, fy)]=diff
-            return
-    elif fx < len(matrix) and matrix[fx][fy]=="#":
-        search(matrix, i,plot, (fx, fy))
-
-    fx, fy = newplot[0]+ directions[3][0], newplot[1] + directions[3][1]
-    if (fx, fy) in traveled and (plot[0], plot[1], fx, fy) not in cheats:
-        diff = traveled[(fx, fy)] - traveled[plot] - i
-        if diff >= 50:
-            cheats[(plot[0], plot[1], fx, fy)]=diff
-            return
-    elif fy > 0 and matrix[fx][fy]=="#":
-        search(matrix, i, plot, (fx, fy))
+    print(total_cheats)
 
 def get_pos(matrix, char):
     for i in range(len(matrix)):
